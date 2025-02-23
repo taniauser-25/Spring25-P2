@@ -1,9 +1,11 @@
-#include <signal.h>  // Required for signal handling (signal, SIGINT, SIGTSTP, SIG_IGN)
-#include <unistd.h>  // Required for raise()
-
+#include <stdio.h>
+#include <stdlib.h>
+#include <signal.h>  // ✅ Important for signal handling
+#include <unistd.h>  // ✅ Required for `raise()`
 #include <string.h>
 #include "harness/unity.h"
 #include "../src/lab.h"
+
 void setUp(void) {
 // set stuff up here
 }
