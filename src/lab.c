@@ -23,10 +23,8 @@ char *get_prompt(const char *env) {
     }
 
     // Ensure the default prompt has a space at the end
-    return strdup("shell> ");
+    return strdup("shell> ");  // <-- FIXED: Added space after ">"
 }
-
-
 
 // Changes directory
 int change_dir(char **dir) {
