@@ -58,14 +58,15 @@ int main(int argc, char *argv[])
 
     parse_args(argc, argv);
     struct shell sh;
-    sh.prompt = get_prompt("MY_PROMPT");  // Dynamically fetch the prompt
+    
+    // Initialize shell and set prompt
     sh_init(&sh);
-
+    
     char *line;
     while (1)
     {
-        // Update prompt dynamically in case MY_PROMPT changes
-        free(sh.prompt);
+        // Update prompt dynamically only if needed
+        if (sh.prompt) free(sh.prompt);
         sh.prompt = get_prompt("MY_PROMPT");
 
         // Display shell prompt and read input using readline()
