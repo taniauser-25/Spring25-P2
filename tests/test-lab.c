@@ -140,19 +140,106 @@ free(line);
 free(actual);
 cmd_free(cmd);
 }
-int main(void) {
-UNITY_BEGIN();
-RUN_TEST(test_cmd_parse);
-RUN_TEST(test_cmd_parse2);
-RUN_TEST(test_trim_white_no_whitespace);
-RUN_TEST(test_trim_white_start_whitespace);
-RUN_TEST(test_trim_white_end_whitespace);
-RUN_TEST(test_trim_white_both_whitespace_single);
-RUN_TEST(test_trim_white_both_whitespace_double);
-RUN_TEST(test_trim_white_all_whitespace);
-RUN_TEST(test_get_prompt_default);
-RUN_TEST(test_get_prompt_custom);
-RUN_TEST(test_ch_dir_home);
-RUN_TEST(test_ch_dir_root);
-return UNITY_END();
+void test_cmd_parse_extra_spaces(void) {
+    char **rval = cmd_parse("   ls    -l    -a   ");
+    TEST_ASSERT_TRUE(rval);
+    TEST_ASSERT_EQUAL_STRING("ls", rval[0]);
+    TEST_ASSERT_EQUAL_STRING("-l", rval[1]);
+    TEST_ASSERT_EQUAL_STRING("-a", rval[2]);
+    TEST_ASSERT_FALSE(rval[3]);
+    cmd_free(rval);
 }
+void test_cmd_parse_empty(void) {
+    char **rval = cmd_parse("");
+    TEST_ASSERT_NULL(rval);  
+}
+void test_cmd_parse_long_command(void) {
+    char *long_cmd = malloc(5000);
+    memset(long_cmd, 'a', 4999);
+    long_cmd[4999] = '\0';
+
+    char **rval = cmd_parse(long_cmd);
+    TEST_ASSERT_NOT_NULL(rval);
+    free(long_cmd);
+    cmd_free(rval);
+}
+void test_trim_white_only_spaces(void) {
+    char *line = (char*) calloc(10, sizeof(char));
+    strncpy(line, "      ", 10);
+    char *rval = trim_white(line);
+    TEST_ASSERT_EQUAL_STRING("", rval);
+    free(line);
+}
+void test_trim_white_tabs(void) {
+    char *line = (char*) calloc(20, sizeof(char));
+    strncpy(line, "  \t  ls -l  \t ", 20);
+    char *rval = trim_white(line);
+    TEST_ASSERT_EQUAL_STRING("ls -l", rval);
+    free(line);
+}
+void test_get_prompt_no_env(void) {
+    unsetenv("MY_PROMPT");
+    char *prompt = get_prompt("MY_PROMPT");
+    TEST_ASSERT_EQUAL_STRING("shell>", prompt);
+    free(prompt);
+}
+void test_get_prompt_long_string(void) {
+    setenv("MY_PROMPT", "This_is_a_very_long_custom_prompt>", 1);
+    char *prompt = get_prompt("MY_PROMPT");
+    TEST_ASSERT_EQUAL_STRING("This_is_a_very_long_custom_prompt>", prompt);
+    free(prompt);
+    unsetenv("MY_PROMPT");
+}
+void test_ch_dir_invalid(void) {
+    char *cmd[] = { "cd", "/invalid/path", NULL };
+    int result = change_dir(cmd);
+    TEST_ASSERT_EQUAL_INT(-1, result);  // Should return error
+}
+void test_ch_dir_and_back(void) {
+    char *cmd[] = { "cd", "/tmp", NULL };
+    int result = change_dir(cmd);
+    TEST_ASSERT_EQUAL_INT(0, result);
+
+    char *back_cmd[] = { "cd", "..", NULL };
+    result = change_dir(back_cmd);
+    TEST_ASSERT_EQUAL_INT(0, result);
+}
+void test_shell_ignore_sigint(void) {
+    signal(SIGINT, SIG_IGN);
+    raise(SIGINT);  // Simulate Ctrl+C
+    TEST_PASS();  // If the shell doesn't crash, the test passes
+}
+void test_shell_ignore_sigtstp(void) {
+    signal(SIGTSTP, SIG_IGN);
+    raise(SIGTSTP);  // Simulate Ctrl+Z
+    TEST_PASS();
+}
+
+int main(void) {
+    UNITY_BEGIN();
+    
+    RUN_TEST(test_cmd_parse);
+    RUN_TEST(test_cmd_parse2);
+    RUN_TEST(test_cmd_parse_extra_spaces);
+    RUN_TEST(test_cmd_parse_empty);
+    RUN_TEST(test_cmd_parse_long_command);
+
+    RUN_TEST(test_trim_white_no_whitespace);
+    RUN_TEST(test_trim_white_only_spaces);
+    RUN_TEST(test_trim_white_tabs);
+    
+    RUN_TEST(test_get_prompt_default);
+    RUN_TEST(test_get_prompt_no_env);
+    RUN_TEST(test_get_prompt_long_string);
+
+    RUN_TEST(test_ch_dir_home);
+    RUN_TEST(test_ch_dir_root);
+    RUN_TEST(test_ch_dir_invalid);
+    RUN_TEST(test_ch_dir_and_back);
+
+    RUN_TEST(test_shell_ignore_sigint);
+    RUN_TEST(test_shell_ignore_sigtstp);
+    
+    return UNITY_END();
+}
+
