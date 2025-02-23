@@ -104,7 +104,7 @@ void test_get_prompt_default(void)
 {
 unsetenv("MY_PROMPT");
 char *prompt = get_prompt("MY_PROMPT");
-TEST_ASSERT_EQUAL_STRING(prompt, "shell>");
+TEST_ASSERT_EQUAL_STRING(prompt, "shell> ");
 // free(prompt);
 }
 void test_get_prompt_custom(void)
@@ -183,12 +183,15 @@ void test_trim_white_only_whitespace(void)
     free(line);
 }
 
-//This tests that when the env variable is not set the default prompt is used
+
 void test_get_prompt_default_empty_env(void)
 {
-    unsetenv("MY_PROMPT");
+    unsetenv("MY_PROMPT");  // Ensure MY_PROMPT is unset
     char *prompt = get_prompt("MY_PROMPT");
-    TEST_ASSERT_EQUAL_STRING(prompt, "shell>");
+
+   // printf("[DEBUG] Retrieved Prompt: '%s' (length: %lu)\n", prompt, strlen(prompt));
+
+    TEST_ASSERT_EQUAL_STRING("shell> ", prompt);  
     free(prompt);
 }
 

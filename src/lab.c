@@ -18,13 +18,19 @@ static pid_t last_stopped_pid = -1;
 // Displays the prompt
 char *get_prompt(const char *env) {
     char *prompt = getenv(env);
+    
     if (prompt && strlen(prompt) > 0) {
+       // printf("[DEBUG] Using custom MY_PROMPT: '%s'\n", prompt);
         return strdup(prompt);
     }
 
     // Ensure the default prompt has a space at the end
-    return strdup("shell> ");  // <-- FIXED: Added space after ">"
+    char *default_prompt = "shell> ";
+   // printf("[DEBUG] Using default prompt: '%s' (length: %lu)\n", default_prompt, strlen(default_prompt));
+
+    return strdup(default_prompt);
 }
+
 
 // Changes directory
 int change_dir(char **dir) {
