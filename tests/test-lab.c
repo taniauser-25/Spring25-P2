@@ -209,9 +209,9 @@ void test_ch_dir_and_back(void) {
     TEST_ASSERT_EQUAL_INT(0, result);
 }
 void test_shell_ignore_sigint(void) {
-    signal(SIGINT, SIG_IGN);
-    raise(SIGINT);  // Simulate Ctrl+C
-    TEST_PASS();  // If the shell doesn't crash, the test passes
+    signal(SIGINT, SIG_IGN);  // Ignore SIGINT
+    raise(SIGINT);  // Simulate Ctrl+C (should be ignored)
+    TEST_ASSERT_TRUE(1);  // Pass if no crash occurs
 }
 void test_shell_ignore_sigtstp(void) {
     signal(SIGTSTP, SIG_IGN);
