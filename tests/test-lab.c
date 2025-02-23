@@ -1,3 +1,5 @@
+#include <signal.h>  // Required for signal handling (signal, SIGINT, SIGTSTP, SIG_IGN)
+#include <unistd.h>  // Required for raise()
 
 #include <string.h>
 #include "harness/unity.h"
